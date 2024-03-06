@@ -37,84 +37,11 @@ namespace FugasDetectionSystem.BotWorker
 
             if (update.Message != null)
             {
-                if (update.Message.Type == MessageType.Audio)
-                {
-
-                }
-                if (update.Message.Type == MessageType.Animation)
-                {
-
-                }
-                if (update.Message.Type == MessageType.ChannelCreated)
-                {
-
-                }
-                if (update.Message.Type == MessageType.ChatMemberLeft)
-                {
-
-                }
-                if (update.Message.Type == MessageType.ChatMembersAdded)
-                {
-
-                }
-                if (update.Message.Type == MessageType.ChatPhotoChanged)
-                {
-
-                }
-                if (update.Message.Type == MessageType.ChatPhotoDeleted)
-                {
-
-                }
-                if (update.Message.Type == MessageType.ChatShared)
-                {
-
-                }
-                if (update.Message.Type == MessageType.ChatTitleChanged)
-                {
-
-                }
-                if (update.Message.Type == MessageType.Contact)
-                {
-
-                }
-                if (update.Message.Type == MessageType.Dice)
-                {
-
-                }
-                if (update.Message.Type == MessageType.Document)
-                {
-
-                }
-                if (update.Message.Type == MessageType.Game)
-                {
-
-                }
-                if (update.Message.Type == MessageType.Invoice)
-                {
-
-                }
-                if (update.Message.Type == MessageType.Location)
-                {
-
-                }
-                if (update.Message.Type == MessageType.Photo)
-                {
-
-                }
-                if (update.Message.Type == MessageType.Video)
-                {
-
-                }
-                if (update.Message.Type == MessageType.Voice)
-                {
-
-                }
-                if (update.Message.Type == MessageType.WebAppData)
-                {
-
-                }
-                if (update.Message.Type == MessageType.Text)
-                {
+                /*if (update.Message.Type == MessageType.Photo){}
+                if (update.Message.Type == MessageType.Video){}
+                if (update.Message.Type == MessageType.Voice){}
+                */
+                if (update.Message.Type == MessageType.Text){
 
                 }
 
