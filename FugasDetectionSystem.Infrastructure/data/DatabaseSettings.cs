@@ -9,6 +9,7 @@ namespace FugasDetectionSystem.Infrastructure.data
 {
     public class DatabaseSettings : IDatabaseSettings
     {
+        //Cadena de conexión
         public string ConnectionString { get; } = string.Empty;
 
 
