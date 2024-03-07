@@ -4,6 +4,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Configuration;
 using System;
+using FugasDetectionSystem.Infrastructure.data;
+using FugasDetectionSystem.Domain.Repositories;
 
 namespace FugasDetectionSystem.BotWorker
 {
@@ -30,6 +32,25 @@ namespace FugasDetectionSystem.BotWorker
 
                 return new TelegramBotService(token);
             });
+
+            // Registro de la cadena de conexión y repositorios
+            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+            if (connectionString == null)
+            {
+                throw new ArgumentNullException(nameof(connectionString), "La cadena de conexión no puede ser nula. Asegúrate de configurarla en appsettings.json o en las variables de entorno.");
+            }
+
+            // Registro de DatabaseSettings con la cadena de conexión.
+            var databaseSettings = new DatabaseSettings(connectionString);
+            builder.Services.AddSingleton<IDatabaseSettings>(databaseSettings);
+
+
+
+            builder.Services.AddSingleton<ITecnicoRepository>( provider => { 
+                return new TecnicoRepository(databaseSettings);
+            });
+
             builder.Services.AddHostedService<Worker>();
 
             // Construir y ejecutar la aplicación

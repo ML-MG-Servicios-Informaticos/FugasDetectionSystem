@@ -11,9 +11,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FugasDetectionSystem.Domain
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FugasDetectionSystem.Application", "FugasDetectionSystem.Application\FugasDetectionSystem.Application.csproj", "{F5BBA568-B74A-4DE4-BAB5-D6747FE08A31}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FugasDetectionSystem.Common", "FugasDetectionSystem.Common\FugasDetectionSystem.Common.csproj", "{F2547E9E-A2D3-4369-94F6-C3BA43B0CD48}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FugasDetectionSystem.Common", "FugasDetectionSystem.Common\FugasDetectionSystem.Common.csproj", "{F2547E9E-A2D3-4369-94F6-C3BA43B0CD48}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FugasDetectionSystem.ApiSchedule", "FugasDetectionSystem.ApiSchedule\FugasDetectionSystem.ApiSchedule.csproj", "{C51FA6B8-6868-4C69-92B0-883C35F17819}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FugasDetectionSystem.ApiApp", "FugasDetectionSystem.ApiApp\FugasDetectionSystem.ApiApp.csproj", "{3B8E3356-637C-4AE5-AFCC-6AE162331CC4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,10 +41,10 @@ Global
 		{F2547E9E-A2D3-4369-94F6-C3BA43B0CD48}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F2547E9E-A2D3-4369-94F6-C3BA43B0CD48}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F2547E9E-A2D3-4369-94F6-C3BA43B0CD48}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C51FA6B8-6868-4C69-92B0-883C35F17819}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C51FA6B8-6868-4C69-92B0-883C35F17819}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C51FA6B8-6868-4C69-92B0-883C35F17819}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C51FA6B8-6868-4C69-92B0-883C35F17819}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3B8E3356-637C-4AE5-AFCC-6AE162331CC4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B8E3356-637C-4AE5-AFCC-6AE162331CC4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B8E3356-637C-4AE5-AFCC-6AE162331CC4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B8E3356-637C-4AE5-AFCC-6AE162331CC4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

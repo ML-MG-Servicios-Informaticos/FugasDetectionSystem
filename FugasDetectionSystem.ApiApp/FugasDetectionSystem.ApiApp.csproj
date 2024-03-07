@@ -5,17 +5,11 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <InvariantGlobalization>true</InvariantGlobalization>
-    <UserSecretsId>aspnet-FugasDetectionSystem.ApiSchedule-875f2d76-85ec-4318-99a1-b7c4501c8c2c</UserSecretsId>
+    <UserSecretsId>fd652de8-5232-4897-8419-449a405ee183</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" NoWarn="NU1605" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="8.0.0" NoWarn="NU1605" />
-    <PackageReference Include="Microsoft.Identity.Web" Version="2.15.2" />
-    <PackageReference Include="Microsoft.Identity.Web.DownstreamApi" Version="2.15.2" />
-    <PackageReference Include="Microsoft.Identity.Web.MicrosoftGraph" Version="2.13.4" />
-    <PackageReference Include="Microsoft.Identity.Web.UI" Version="2.13.4" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.5" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
   </ItemGroup>

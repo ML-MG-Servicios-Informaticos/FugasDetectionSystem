@@ -10,15 +10,20 @@ namespace FugasDetectionSystem.BotWorker
     {
         private readonly ILogger<Worker> _logger;
         private readonly ITelegramBotService _telegramBotService;
+        private readonly ITecnicoRepository _tecnicoRepository;
 
-        public Worker(ILogger<Worker> logger, ITelegramBotService telegramBotService)
+
+        public Worker(ILogger<Worker> logger, ITelegramBotService telegramBotService, ITecnicoRepository tecnicoRepository)
         {
             _logger = logger;
             _telegramBotService = telegramBotService;
+            _tecnicoRepository = tecnicoRepository;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            var tecnicos = _tecnicoRepository.GetTecnicos();
+
             _telegramBotService.StartReceiving(HandleUpdateAsync, HandleErrorAsync);
 
             while (!stoppingToken.IsCancellationRequested)

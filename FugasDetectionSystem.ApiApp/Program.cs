@@ -1,23 +1,15 @@
+
 using FugasDetectionSystem.Domain.Interfaces;
-using FugasDetectionSystem.Infrastructure.Repositories;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Identity.Web;
-using Microsoft.Identity.Web.Resource;
-using Microsoft.Extensions.DependencyInjection;
+using FugasDetectionSystem.Domain.Repositories;
 using FugasDetectionSystem.Infrastructure.data;
 
-namespace FugasDetectionSystem.ApiSchedule
+namespace FugasDetectionSystem.ApiApp
 {
     public class Program
     {
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-
-            // Add services to the container.
-            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"));
 
             // Registro de la cadena de conexión y repositorios
             var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -33,14 +25,16 @@ namespace FugasDetectionSystem.ApiSchedule
 
             builder.Services.AddScoped<ITecnicoRepository, TecnicoRepository>();
 
-            // Continúa con la configuración previa...
+            // Add services to the container.
+
             builder.Services.AddControllers();
+            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
             var app = builder.Build();
 
-            // Configuración del pipeline de HTTP request...
+            // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
@@ -48,8 +42,9 @@ namespace FugasDetectionSystem.ApiSchedule
             }
 
             app.UseHttpsRedirection();
-            app.UseAuthentication();
+
             app.UseAuthorization();
+
 
             app.MapControllers();
 
