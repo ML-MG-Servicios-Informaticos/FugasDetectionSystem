@@ -1,4 +1,5 @@
-﻿using FugasDetectionSystem.Domain.Interfaces;
+﻿using FugasDetectionSystem.Domain.Entities;
+using FugasDetectionSystem.Domain.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -19,10 +20,10 @@ namespace FugasDetectionSystem.ApiApp.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllTecnicos()
+        public List<Tecnico> GetAllTecnicos()
         {
-            var tecnicos = await _tecnicoRepository.GetAllTecnicosAsync();
-            return Ok(tecnicos);
+            var tecnicos = _tecnicoRepository.GetTecnicos();
+            return tecnicos;
         }
 
         // GET api/<TecnicosController>/5
