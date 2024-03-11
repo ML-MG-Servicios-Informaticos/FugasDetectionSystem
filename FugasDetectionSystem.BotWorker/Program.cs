@@ -1,10 +1,10 @@
 using FugasDetectionSystem.Domain.Interfaces;
-using FugasDetectionSystem.Infrastructure.services.telegram;
+using FugasDetectionSystem.Infrastructure.Services.Telegram;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Configuration;
 using System;
-using FugasDetectionSystem.Infrastructure.data;
+using FugasDetectionSystem.Infrastructure.Data;
 using FugasDetectionSystem.Domain.Repositories;
 
 namespace FugasDetectionSystem.BotWorker

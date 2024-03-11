@@ -4,7 +4,7 @@ using Telegram.Bot.Types.Enums;
 using FugasDetectionSystem.Domain.Interfaces;
 using FugasDetectionSystem.Application.Handlers;
 
-namespace FugasDetectionSystem.Infrastructure.services.telegram
+namespace FugasDetectionSystem.Infrastructure.Services.Telegram
 {
     public class TelegramBotService : ITelegramBotService
     {

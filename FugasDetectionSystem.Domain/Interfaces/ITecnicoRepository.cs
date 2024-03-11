@@ -5,12 +5,25 @@ namespace FugasDetectionSystem.Domain.Interfaces
 {
     public interface ITecnicoRepository
     {
-        void CreateTable(); // Método para crear la tabla si no existe
-        void AddTecnico(Tecnico tecnico); // Método para añadir un nuevo técnico
-        List<Tecnico> GetTecnicos(); // Método para obtener todos los técnicos
-        Tecnico GetTecnico(int idTecnico); // Método para obtener un técnico por ID
-        void UpdateTecnico(Tecnico tecnico); // Método para actualizar un técnico existente
-        void DeleteTecnico(int idTecnico); // Método para eliminar un técnico por ID
-        bool TableExists(); // Método para verificar si la tabla existe
+        // Método para verificar si la tabla de técnicos existe.
+        //bool TableExists();
+
+        // Método para crear la tabla de técnicos si no existe.
+        //void CreateTable();
+
+        // Método para agregar un nuevo técnico a la base de datos.
+        void AddTecnico(Tecnico tecnico);
+
+        // Método para obtener una lista de todos los técnicos.
+        List<Tecnico> GetTecnicos();
+
+        // Método para obtener un único técnico por su identificador.
+        Tecnico GetTecnico(int tecnicoId);
+
+        // Método para actualizar la información de un técnico existente.
+        void UpdateTecnico(Tecnico tecnico);
+
+        // Método para eliminar un técnico de la base de datos por su identificador.
+        void DeleteTecnico(int tecnicoId);
     }
 }

@@ -1,7 +1,7 @@
-﻿using Microsoft.Data.Sqlite;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using Microsoft.Data.SqlClient;
 using FugasDetectionSystem.Domain.Entities;
 using FugasDetectionSystem.Domain.Interfaces;
 
@@ -15,75 +15,34 @@ namespace FugasDetectionSystem.Domain.Repositories
         {
             _connectionString = databaseSettings.ConnectionString;
         }
-        public bool TableExists()
-        {
-            using (var connection = new SqliteConnection(_connectionString))
-            {
-                connection.Open();
-                var query = "SELECT name FROM sqlite_master WHERE type='table' AND name='tecnicos';";
-                using (var command = new SqliteCommand(query, connection))
-                {
-                    var result = command.ExecuteScalar();
-                    return result != null;
-                }
-            }
-        }
-
-        public void CreateTable()
-        {
-            using (var connection = new SqliteConnection(_connectionString))
-            {
-                connection.Open();
-                var command = connection.CreateCommand();
-                command.CommandText =
-                @"
-                CREATE TABLE IF NOT EXISTS tecnicos (
-                    idtecnico INTEGER PRIMARY KEY,
-                    nombres TEXT NOT NULL,
-                    apellidos TEXT NOT NULL,
-                    email TEXT NOT NULL,
-                    telefono TEXT NOT NULL,
-                    disponibilidad TEXT
-                );
-                ";
-                command.ExecuteNonQuery();
-            }
-        }
 
         public void AddTecnico(Tecnico tecnico)
         {
             try
             {
-                using (var connection = new SqliteConnection(_connectionString))
+                using (var connection = new SqlConnection(_connectionString))
                 {
                     connection.Open();
-                    using (var command = connection.CreateCommand())
+                    using (var command = new SqlCommand())
                     {
+                        command.Connection = connection;
                         command.CommandText = @"
-                                                INSERT INTO tecnicos (nombres, apellidos, email, telefono, disponibilidad) 
-                                                VALUES ($nombres, $apellidos, $email, $telefono, $disponibilidad);
-                                                ";
+                            INSERT INTO Tecnicos (Nombre, Apellido, Especialidad, CorreoElectronico, Telefono) 
+                            VALUES (@Nombre, @Apellido, @Especialidad, @CorreoElectronico, @Telefono);
+                        ";
 
-                        // Añade los parámetros al comando SQL
-                        command.Parameters.AddWithValue("$nombres", tecnico.Nombres ?? string.Empty);
-                        command.Parameters.AddWithValue("$apellidos", tecnico.Apellidos ?? string.Empty);
-                        command.Parameters.AddWithValue("$email", tecnico.Email ?? string.Empty);
-                        command.Parameters.AddWithValue("$telefono", tecnico.Telefono ?? string.Empty);
-                        command.Parameters.AddWithValue("$disponibilidad", tecnico.DisponibilidadJson ?? "{}"); // Asegura un valor por defecto de JSON vacío
+                        command.Parameters.AddWithValue("@Nombre", tecnico.Nombre ?? string.Empty);
+                        command.Parameters.AddWithValue("@Apellido", tecnico.Apellido ?? string.Empty);
+                        command.Parameters.AddWithValue("@Especialidad", tecnico.Especialidad ?? string.Empty);
+                        command.Parameters.AddWithValue("@CorreoElectronico", tecnico.CorreoElectronico ?? string.Empty);
+                        command.Parameters.AddWithValue("@Telefono", tecnico.Telefono ?? string.Empty);
 
-                        // Ejecuta el comando
-                        int affectedRows = command.ExecuteNonQuery();
-                        if (affectedRows == 0)
-                        {
-                            // Manejar el caso en que no se inserte ningún registro, si es necesario
-                            Console.WriteLine("No se pudo insertar el técnico.");
-                        }
+                        command.ExecuteNonQuery();
                     }
                 }
             }
-            catch (SqliteException ex)
+            catch (SqlException ex)
             {
-                // Maneja el error, por ejemplo, registrando el error en un archivo de log
                 Console.WriteLine($"Ocurrió un error al intentar añadir un técnico: {ex.Message}");
             }
         }
@@ -91,91 +50,121 @@ namespace FugasDetectionSystem.Domain.Repositories
         public List<Tecnico> GetTecnicos()
         {
             var tecnicos = new List<Tecnico>();
-            using (var connection = new SqliteConnection(_connectionString))
+
+            using (var connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
                 var command = connection.CreateCommand();
-                command.CommandText = "SELECT * FROM tecnicos;";
-                using var reader = command.ExecuteReader();
-                while (reader.Read())
+                command.CommandText = "SELECT TecnicoID, Nombre, Apellido, Especialidad, CorreoElectronico, Telefono FROM Tecnicos;";
+
+                using (var reader = command.ExecuteReader())
                 {
-                    tecnicos.Add(new Tecnico
+                    while (reader.Read())
                     {
-                        IdTecnico = reader.GetInt32(reader.GetOrdinal("idtecnico")),
-                        Nombres = reader.GetString(reader.GetOrdinal("nombres")),
-                        Apellidos = reader.GetString(reader.GetOrdinal("apellidos")),
-                        Email = reader.GetString(reader.GetOrdinal("email")),
-                        Telefono = reader.GetString(reader.GetOrdinal("telefono")),
-                        DisponibilidadJson = reader.IsDBNull(reader.GetOrdinal("disponibilidad")) ? null : reader.GetString(reader.GetOrdinal("disponibilidad")),
-                    });
+                        var tecnico = new Tecnico
+                        {
+                            TecnicoID = reader.GetInt32(reader.GetOrdinal("TecnicoID")),
+                            Nombre = reader.IsDBNull(reader.GetOrdinal("Nombre")) ? string.Empty : reader.GetString(reader.GetOrdinal("Nombre")),
+                            Apellido = reader.IsDBNull(reader.GetOrdinal("Apellido")) ? string.Empty : reader.GetString(reader.GetOrdinal("Apellido")),
+                            Especialidad = reader.IsDBNull(reader.GetOrdinal("Especialidad")) ? string.Empty : reader.GetString(reader.GetOrdinal("Especialidad")),
+                            CorreoElectronico = reader.IsDBNull(reader.GetOrdinal("CorreoElectronico")) ? string.Empty : reader.GetString(reader.GetOrdinal("CorreoElectronico")),
+                            Telefono = reader.IsDBNull(reader.GetOrdinal("Telefono")) ? string.Empty : reader.GetString(reader.GetOrdinal("Telefono"))
+                        };
+
+                        tecnicos.Add(tecnico);
+                    }
                 }
             }
 
             return tecnicos;
         }
 
-        public Tecnico GetTecnico(int idTecnico)
+        public Tecnico GetTecnico(int tecnicoId)
         {
-            using (var connection = new SqliteConnection(_connectionString))
+            Tecnico tecnico = new Tecnico();
+
+            using (var connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
                 var command = connection.CreateCommand();
-                command.CommandText = "SELECT * FROM tecnicos WHERE idtecnico = $idtecnico;";
-                command.Parameters.AddWithValue("$idtecnico", idTecnico);
+                command.CommandText = "SELECT TecnicoID, Nombre, Apellido, Especialidad, CorreoElectronico, Telefono FROM Tecnicos WHERE TecnicoID = @TecnicoID;";
+                command.Parameters.AddWithValue("@TecnicoID", tecnicoId);
 
                 using (var reader = command.ExecuteReader())
                 {
                     if (reader.Read())
                     {
-                        return new Tecnico
+                        tecnico = new Tecnico
                         {
-                            IdTecnico = reader.GetInt32(reader.GetOrdinal("idtecnico")),
-                            Nombres = reader.GetString(reader.GetOrdinal("nombres")),
-                            Apellidos = reader.GetString(reader.GetOrdinal("apellidos")),
-                            Email = reader.GetString(reader.GetOrdinal("email")),
-                            Telefono = reader.GetString(reader.GetOrdinal("telefono")),
-                            DisponibilidadJson = reader.IsDBNull(reader.GetOrdinal("disponibilidad")) ? null : reader.GetString(reader.GetOrdinal("disponibilidad")),
+                            TecnicoID = reader.GetInt32(reader.GetOrdinal("TecnicoID")),
+                            Nombre = reader.IsDBNull(reader.GetOrdinal("Nombre")) ? string.Empty : reader.GetString(reader.GetOrdinal("Nombre")),
+                            Apellido = reader.IsDBNull(reader.GetOrdinal("Apellido")) ? string.Empty : reader.GetString(reader.GetOrdinal("Apellido")),
+                            Especialidad = reader.IsDBNull(reader.GetOrdinal("Especialidad")) ? string.Empty : reader.GetString(reader.GetOrdinal("Especialidad")),
+                            CorreoElectronico = reader.IsDBNull(reader.GetOrdinal("CorreoElectronico")) ? string.Empty : reader.GetString(reader.GetOrdinal("CorreoElectronico")),
+                            Telefono = reader.IsDBNull(reader.GetOrdinal("Telefono")) ? string.Empty : reader.GetString(reader.GetOrdinal("Telefono"))
                         };
+                        return tecnico;
                     }
                 }
             }
-            return null; // Retorna null si no se encuentra el técnico
+
+            return tecnico;
         }
 
         public void UpdateTecnico(Tecnico tecnico)
         {
-            using (var connection = new SqliteConnection(_connectionString))
+            using (var connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
                 var command = connection.CreateCommand();
                 command.CommandText = @"
-                                        UPDATE tecnicos 
-                                        SET nombres = $nombres, apellidos = $apellidos, email = $email, telefono = $telefono, disponibilidad = $disponibilidad
-                                        WHERE idtecnico = $idtecnico;
-                                        ";
-                command.Parameters.AddWithValue("$idtecnico", tecnico.IdTecnico);
-                command.Parameters.AddWithValue("$nombres", tecnico.Nombres);
-                command.Parameters.AddWithValue("$apellidos", tecnico.Apellidos);
-                command.Parameters.AddWithValue("$email", tecnico.Email);
-                command.Parameters.AddWithValue("$telefono", tecnico.Telefono);
-                command.Parameters.AddWithValue("$disponibilidad", tecnico.DisponibilidadJson);
+                                        UPDATE Tecnicos
+                                        SET Nombre = @Nombre, 
+                                            Apellido = @Apellido, 
+                                            Especialidad = @Especialidad, 
+                                            CorreoElectronico = @CorreoElectronico, 
+                                            Telefono = @Telefono
+                                        WHERE TecnicoID = @TecnicoID;
+                                    ";
 
-                command.ExecuteNonQuery();
+                command.Parameters.AddWithValue("@TecnicoID", tecnico.TecnicoID);
+                command.Parameters.AddWithValue("@Nombre", tecnico.Nombre ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@Apellido", tecnico.Apellido ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@Especialidad", tecnico.Especialidad ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@CorreoElectronico", tecnico.CorreoElectronico ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@Telefono", tecnico.Telefono ?? (object)DBNull.Value);
+
+                int affectedRows = command.ExecuteNonQuery();
+                if (affectedRows == 0)
+                {
+                    // Opcional: Manejar el caso en el que no se actualice ningún registro, podría ser que el TecnicoID no exista.
+                    Console.WriteLine("No se encontró el técnico para actualizar.");
+                }
             }
         }
 
-        public void DeleteTecnico(int idTecnico)
+        public void DeleteTecnico(int tecnicoId)
         {
-            using (var connection = new SqliteConnection(_connectionString))
+            using (var connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
                 var command = connection.CreateCommand();
-                command.CommandText = "DELETE FROM tecnicos WHERE idtecnico = $idtecnico;";
-                command.Parameters.AddWithValue("$idtecnico", idTecnico);
+                command.CommandText = "DELETE FROM Tecnicos WHERE TecnicoID = @TecnicoID;";
 
-                command.ExecuteNonQuery();
+                command.Parameters.AddWithValue("@TecnicoID", tecnicoId);
+
+                int affectedRows = command.ExecuteNonQuery();
+                if (affectedRows == 0)
+                {
+                    // Opcional: Manejar el caso en el que no se elimine ningún registro,
+                    // podría ser que el TecnicoID no exista.
+                    Console.WriteLine("No se encontró el técnico para eliminar.");
+                }
             }
         }
 
+        // Los métodos GetTecnicos, GetTecnico, UpdateTecnico, y DeleteTecnico también necesitarán ser ajustados
+        // para reflejar el esquema de la tabla y las columnas correctas.
+        // Asegúrate de modificar las consultas y parámetros según la definición de tu tabla `Tecnicos`.
     }
 }

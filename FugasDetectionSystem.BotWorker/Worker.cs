@@ -1,6 +1,7 @@
 using Telegram.Bot.Types;
 using Telegram.Bot;
 using FugasDetectionSystem.Domain.Interfaces;
+using FugasDetectionSystem.Domain.Entities;
 using System.Diagnostics.CodeAnalysis;
 using Telegram.Bot.Types.Enums;
 
@@ -22,7 +23,7 @@ namespace FugasDetectionSystem.BotWorker
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            var tecnicos = _tecnicoRepository.GetTecnicos();
+            List<Tecnico> tecnicos = _tecnicoRepository.GetTecnicos();
 
             _telegramBotService.StartReceiving(HandleUpdateAsync, HandleErrorAsync);
 

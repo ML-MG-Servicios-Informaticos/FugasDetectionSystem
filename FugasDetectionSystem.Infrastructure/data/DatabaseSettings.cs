@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FugasDetectionSystem.Infrastructure.data
+namespace FugasDetectionSystem.Infrastructure.Data
 {
     public class DatabaseSettings : IDatabaseSettings
     {

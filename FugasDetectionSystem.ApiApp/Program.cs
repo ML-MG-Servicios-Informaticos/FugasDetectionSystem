@@ -1,7 +1,7 @@
 
 using FugasDetectionSystem.Domain.Interfaces;
 using FugasDetectionSystem.Domain.Repositories;
-using FugasDetectionSystem.Infrastructure.data;
+using FugasDetectionSystem.Infrastructure.Data;
 
 namespace FugasDetectionSystem.ApiApp
 {
