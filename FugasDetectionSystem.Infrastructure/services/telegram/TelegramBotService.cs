@@ -1,26 +1,21 @@
 ﻿using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types.Enums;
-using FugasDetectionSystem.Domain.Interfaces;
-using FugasDetectionSystem.Application.Handlers;
+using FugasDetectionSystem.Infrastructure.Services.Telegram.Handlers;
+using FugasDetectionSystem.Infrastructure.Services.Telegram.Interfaces;
 
 namespace FugasDetectionSystem.Infrastructure.Services.Telegram
 {
-    public class TelegramBotService : ITelegramBotService
+    public class TelegramBotService(string token) : ITelegramBotService
     {
-        private readonly TelegramBotClient _botClient;
+        private readonly TelegramBotClient _botClient = new(token);
         private readonly CancellationTokenSource _cts = new();
-
-        public TelegramBotService(string token)
-        {
-            _botClient = new TelegramBotClient(token);
-        }
 
         public void StartReceiving(UpdateHandler updateHandler, ErrorHandler errorHandler)
         {
             var receiverOptions = new ReceiverOptions
             {
-                AllowedUpdates = Array.Empty<UpdateType>() // Recibe todos los tipos de actualizaciones
+                AllowedUpdates = [] // Recibe todos los tipos de actualizaciones
             };
 
             _botClient.StartReceiving(

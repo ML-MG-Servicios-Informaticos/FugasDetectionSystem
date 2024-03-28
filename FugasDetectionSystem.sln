@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FugasDetectionSystem.Applic
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FugasDetectionSystem.Common", "FugasDetectionSystem.Common\FugasDetectionSystem.Common.csproj", "{F2547E9E-A2D3-4369-94F6-C3BA43B0CD48}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FugasDetectionSystem.ApiAppTecnicos", "FugasDetectionSystem.ApiAppTecnicos\FugasDetectionSystem.ApiAppTecnicos.csproj", "{111ADAF3-F184-4319-AAAC-40F0850734A3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{F2547E9E-A2D3-4369-94F6-C3BA43B0CD48}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F2547E9E-A2D3-4369-94F6-C3BA43B0CD48}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F2547E9E-A2D3-4369-94F6-C3BA43B0CD48}.Release|Any CPU.Build.0 = Release|Any CPU
+		{111ADAF3-F184-4319-AAAC-40F0850734A3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{111ADAF3-F184-4319-AAAC-40F0850734A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{111ADAF3-F184-4319-AAAC-40F0850734A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{111ADAF3-F184-4319-AAAC-40F0850734A3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

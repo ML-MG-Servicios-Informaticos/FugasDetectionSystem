@@ -4,26 +4,30 @@ using FugasDetectionSystem.Domain.Interfaces;
 using FugasDetectionSystem.Domain.Entities;
 using System.Diagnostics.CodeAnalysis;
 using Telegram.Bot.Types.Enums;
+using FugasDetectionSystem.Infrastructure.Services.Telegram.Interfaces;
+using FugasDetectionSystem.Application.Managers;
 
 namespace FugasDetectionSystem.BotWorker
 {
-    public class Worker : BackgroundService
+    public class Worker(ILogger<Worker> logger, ITelegramBotService telegramBotService, ITecnicoRepository tecnicoRepository) : BackgroundService
     {
-        private readonly ILogger<Worker> _logger;
-        private readonly ITelegramBotService _telegramBotService;
-        private readonly ITecnicoRepository _tecnicoRepository;
-
-
-        public Worker(ILogger<Worker> logger, ITelegramBotService telegramBotService, ITecnicoRepository tecnicoRepository)
-        {
-            _logger = logger;
-            _telegramBotService = telegramBotService;
-            _tecnicoRepository = tecnicoRepository;
-        }
+        private readonly ILogger<Worker> _logger = logger;
+        private readonly ITelegramBotService _telegramBotService = telegramBotService;
+        private readonly ITecnicoRepository tecnicoRepository = tecnicoRepository;
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            List<Tecnico> tecnicos = _tecnicoRepository.GetTecnicos();
+            // En algún lugar dentro de tu bot worker
+            var manager = new TecnicoManager(tecnicoRepository);
+            var result = await manager.GetAllTecnicosAsync();
+            if (result.IsSuccess)
+            {
+                // Puedes trabajar con result.Value que será una List<Tecnico>
+            }
+            else
+            {
+                // Manejar el error, result.ErrorMessage tendrá la descripción del error
+            }
 
             _telegramBotService.StartReceiving(HandleUpdateAsync, HandleErrorAsync);
 

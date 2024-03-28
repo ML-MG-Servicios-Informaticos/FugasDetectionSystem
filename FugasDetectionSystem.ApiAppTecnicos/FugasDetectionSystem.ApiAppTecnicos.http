@@ -1,0 +1,6 @@
+@FugasDetectionSystem.ApiAppTecnicos_HostAddress = http://localhost:5138
+
+GET {{FugasDetectionSystem.ApiAppTecnicos_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

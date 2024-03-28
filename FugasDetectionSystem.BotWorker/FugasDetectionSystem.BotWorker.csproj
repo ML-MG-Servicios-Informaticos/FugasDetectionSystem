@@ -16,7 +16,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\FugasDetectionSystem.Application\FugasDetectionSystem.Application.csproj" />
+    <ProjectReference Include="..\FugasDetectionSystem.Common\FugasDetectionSystem.Common.csproj" />
     <ProjectReference Include="..\FugasDetectionSystem.Domain\FugasDetectionSystem.Domain.csproj" />
-    <ProjectReference Include="..\FugasDetectionSystem.Infrastructure\FugasDetectionSystem.Infrastructure.csproj" />
   </ItemGroup>
 </Project>

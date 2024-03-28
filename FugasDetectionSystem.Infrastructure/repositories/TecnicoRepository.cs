@@ -1,126 +1,84 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using FugasDetectionSystem.Domain.Entities;
 using FugasDetectionSystem.Domain.Interfaces;
+using FugasDetectionSystem.Infrastructure.repositories;
+using FugasDetectionSystem.Infrastructure.Exceptions;
 
 namespace FugasDetectionSystem.Domain.Repositories
 {
-    public class TecnicoRepository : ITecnicoRepository
+    public class TecnicoRepository(IDatabaseSettings databaseSettings) : BaseRepository(databaseSettings), ITecnicoRepository
     {
-        private readonly string _connectionString;
-
-        public TecnicoRepository(IDatabaseSettings databaseSettings)
+        private static Tecnico MapToTecnico(SqlDataReader reader)
         {
-            _connectionString = databaseSettings.ConnectionString;
+            return new Tecnico
+            {
+                TecnicoID = reader.GetInt32(reader.GetOrdinal("TecnicoID")),
+                Nombre = reader.IsDBNull(reader.GetOrdinal("Nombre")) ? string.Empty : reader.GetString(reader.GetOrdinal("Nombre")),
+                Apellido = reader.IsDBNull(reader.GetOrdinal("Apellido")) ? string.Empty : reader.GetString(reader.GetOrdinal("Apellido")),
+                Especialidad = reader.IsDBNull(reader.GetOrdinal("Especialidad")) ? string.Empty : reader.GetString(reader.GetOrdinal("Especialidad")),
+                CorreoElectronico = reader.IsDBNull(reader.GetOrdinal("CorreoElectronico")) ? string.Empty : reader.GetString(reader.GetOrdinal("CorreoElectronico")),
+                Telefono = reader.IsDBNull(reader.GetOrdinal("Telefono")) ? string.Empty : reader.GetString(reader.GetOrdinal("Telefono"))
+            };
         }
 
-        public List<Tecnico> GetTecnicos()
+        public async Task<IEnumerable<Tecnico>> GetAllAsync()
         {
             var tecnicos = new List<Tecnico>();
 
             try
             {
-                using var connection = new SqlConnection(_connectionString);
+                using var connection = GetOpenConnection();
+                using var command = CreateCommand(connection, "ConsultarTecnicos");
+                using var reader = await command.ExecuteReaderAsync();
 
-                connection.Open();
-
-                using var command = new SqlCommand("ConsultarTecnicos", connection);
-
-                // Especifica que el tipo de comando es un procedimiento almacenado.
-                command.CommandType = CommandType.StoredProcedure;
-
-                using var reader = command.ExecuteReader();
-
-                while (reader.Read())
+                while (await reader.ReadAsync())
                 {
-                    var tecnico = new Tecnico
-                    {
-                        TecnicoID = reader.GetInt32(reader.GetOrdinal("TecnicoID")),
-                        Nombre = reader.IsDBNull(reader.GetOrdinal("Nombre")) ? string.Empty : reader.GetString(reader.GetOrdinal("Nombre")),
-                        Apellido = reader.IsDBNull(reader.GetOrdinal("Apellido")) ? string.Empty : reader.GetString(reader.GetOrdinal("Apellido")),
-                        Especialidad = reader.IsDBNull(reader.GetOrdinal("Especialidad")) ? string.Empty : reader.GetString(reader.GetOrdinal("Especialidad")),
-                        CorreoElectronico = reader.IsDBNull(reader.GetOrdinal("CorreoElectronico")) ? string.Empty : reader.GetString(reader.GetOrdinal("CorreoElectronico")),
-                        Telefono = reader.IsDBNull(reader.GetOrdinal("Telefono")) ? string.Empty : reader.GetString(reader.GetOrdinal("Telefono"))
-                    };
-
-                    tecnicos.Add(tecnico);
+                    tecnicos.Add(MapToTecnico(reader));
                 }
-            }
-            catch (SqlException ex)
-            {
-                // Maneja la excepción de SQL aquí.
-                Console.WriteLine($"Ocurrió un error de SQL: {ex.Message}");
             }
             catch (Exception ex)
             {
-                // Maneja cualquier otro tipo de excepción aquí.
-                Console.WriteLine($"Ocurrió un error inesperado: {ex.Message}");
+                HandleException(ex);
             }
 
             return tecnicos;
         }
 
-        public Tecnico GetTecnico(int tecnicoId)
+        public async Task<Tecnico> GetByIdAsync(int tecnicoId)
         {
-            Tecnico tecnico = new();
+            Tecnico tecnico = null;
 
             try
             {
-                using var connection = new SqlConnection(_connectionString);
-
-                connection.Open();
-
-                using var command = new SqlCommand("ConsultarTecnicoPorID", connection);
-
-                // Especifica que el tipo de comando es un procedimiento almacenado.
-                command.CommandType = CommandType.StoredProcedure;
-
-                // Añade los parámetros esperados por el procedimiento almacenado.
+                using var connection = GetOpenConnection();
+                using var command = CreateCommand(connection, "ConsultarTecnicoPorID");
                 command.Parameters.AddWithValue("@TecnicoID", tecnicoId);
 
-                using var reader = command.ExecuteReader();
+                using var reader = await command.ExecuteReaderAsync();
 
-                if (reader.Read())
+                if (await reader.ReadAsync())
                 {
-                    tecnico = new Tecnico
-                    {
-                        TecnicoID = reader.GetInt32(reader.GetOrdinal("TecnicoID")),
-                        Nombre = reader.IsDBNull(reader.GetOrdinal("Nombre")) ? string.Empty : reader.GetString(reader.GetOrdinal("Nombre")),
-                        Apellido = reader.IsDBNull(reader.GetOrdinal("Apellido")) ? string.Empty : reader.GetString(reader.GetOrdinal("Apellido")),
-                        Especialidad = reader.IsDBNull(reader.GetOrdinal("Especialidad")) ? string.Empty : reader.GetString(reader.GetOrdinal("Especialidad")),
-                        CorreoElectronico = reader.IsDBNull(reader.GetOrdinal("CorreoElectronico")) ? string.Empty : reader.GetString(reader.GetOrdinal("CorreoElectronico")),
-                        Telefono = reader.IsDBNull(reader.GetOrdinal("Telefono")) ? string.Empty : reader.GetString(reader.GetOrdinal("Telefono"))
-                    };
+                    tecnico = MapToTecnico(reader);
                 }
-            }
-            catch (SqlException ex)
-            {
-                // Maneja la excepción de SQL aquí.
-                Console.WriteLine($"Ocurrió un error de SQL: {ex.Message}");
             }
             catch (Exception ex)
             {
-                // Maneja cualquier otro tipo de excepción aquí.
-                Console.WriteLine($"Ocurrió un error inesperado: {ex.Message}");
+                HandleException(ex);
             }
 
             return tecnico;
         }
 
-        public void AddTecnico(Tecnico tecnico)
+        public async Task AddAsync(Tecnico tecnico)
         {
             try
             {
-                using var connection = new SqlConnection(_connectionString);
-
-                connection.Open();
-
-                using var command = new SqlCommand("InsertarTecnico", connection);
-
-                // Especifica que el tipo de comando es un procedimiento almacenado.
-                command.CommandType = CommandType.StoredProcedure;
+                using var connection = GetOpenConnection();
+                using var command = CreateCommand(connection, "InsertarTecnico");
 
                 // Añade los parámetros esperados por el procedimiento almacenado.
                 command.Parameters.AddWithValue("@Nombre", tecnico.Nombre ?? string.Empty);
@@ -129,128 +87,69 @@ namespace FugasDetectionSystem.Domain.Repositories
                 command.Parameters.AddWithValue("@CorreoElectronico", tecnico.CorreoElectronico ?? string.Empty);
                 command.Parameters.AddWithValue("@Telefono", tecnico.Telefono ?? string.Empty);
 
-                // Añade un parámetro para recibir el valor de retorno del procedimiento almacenado.
                 var returnParameter = command.Parameters.Add("@ReturnVal", SqlDbType.Int);
                 returnParameter.Direction = ParameterDirection.ReturnValue;
 
-                command.ExecuteNonQuery();
+                await command.ExecuteNonQueryAsync();
 
                 int result = (int)returnParameter.Value;
-                if (result == 0)
-                {
-                    // Manejar el caso en el que no se pudo insertar el técnico.
-                    Console.WriteLine("No se pudo insertar el técnico.");
-                }
-                else
-                {
-                    Console.WriteLine("Técnico insertado con éxito.");
-                }
-
-            }
-            catch (SqlException ex)
-            {
-                // Maneja la excepción de SQL aquí.
-                Console.WriteLine($"Ocurrió un error de SQL: {ex.Message}");
+                // Manejar el resultado como sea necesario
             }
             catch (Exception ex)
             {
-                // Maneja cualquier otro tipo de excepción aquí.
-                Console.WriteLine($"Ocurrió un error inesperado: {ex.Message}");
+                HandleException(ex);
             }
         }
 
-        public void UpdateTecnico(Tecnico tecnico)
+        public async Task UpdateAsync(Tecnico tecnico)
         {
             try
             {
-                using var connection = new SqlConnection(_connectionString);
+                using var connection = GetOpenConnection();
+                using var command = CreateCommand(connection, "ActualizarTecnico");
 
-                connection.Open();
-
-                using var command = new SqlCommand("ActualizarTecnico", connection);
-
-                // Especifica que el tipo de comando es un procedimiento almacenado.
-                command.CommandType = CommandType.StoredProcedure;
-
-                // Añade los parámetros esperados por el procedimiento almacenado.
+                // Especifica que el tipo de comando es un procedimiento almacenado y añade los parámetros.
                 command.Parameters.AddWithValue("@TecnicoID", tecnico.TecnicoID);
-                command.Parameters.AddWithValue("@Nombre", tecnico.Nombre ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@Apellido", tecnico.Apellido ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@Especialidad", tecnico.Especialidad ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@CorreoElectronico", tecnico.CorreoElectronico ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@Telefono", tecnico.Telefono ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@Nombre", tecnico.Nombre);
+                command.Parameters.AddWithValue("@Apellido", tecnico.Apellido );
+                command.Parameters.AddWithValue("@Especialidad", tecnico.Especialidad);
+                command.Parameters.AddWithValue("@CorreoElectronico", tecnico.CorreoElectronico);
+                command.Parameters.AddWithValue("@Telefono", tecnico.Telefono);
 
-                // Añade un parámetro para recibir el valor de retorno del procedimiento almacenado.
                 var returnParameter = command.Parameters.Add("@ReturnVal", SqlDbType.Int);
                 returnParameter.Direction = ParameterDirection.ReturnValue;
 
-                command.ExecuteNonQuery();
+                await command.ExecuteNonQueryAsync();
 
                 int result = (int)returnParameter.Value;
-                if (result == 0)
-                {
-                    // Manejar el caso en el que no se actualice ningún registro, podría ser que el TecnicoID no exista.
-                    Console.WriteLine("No se encontró el técnico para actualizar.");
-                }
-                else
-                {
-                    Console.WriteLine("Técnico actualizado con éxito.");
-                }
-            }
-            catch (SqlException ex)
-            {
-                // Maneja la excepción de SQL aquí.
-                Console.WriteLine($"Ocurrió un error de SQL: {ex.Message}");
+                // Manejar el resultado como sea necesario
             }
             catch (Exception ex)
             {
-                // Maneja cualquier otro tipo de excepción aquí.
-                Console.WriteLine($"Ocurrió un error inesperado: {ex.Message}");
+                HandleException(ex);
             }
         }
 
-        public void DeleteTecnico(int tecnicoId)
+        public async Task DeleteAsync(int tecnicoId)
         {
             try
             {
-                using var connection = new SqlConnection(_connectionString);
+                using var connection = GetOpenConnection();
+                using var command = CreateCommand(connection, "EliminarTecnico");
 
-                connection.Open();
-
-                using var command = new SqlCommand("EliminarTecnico", connection);
-
-                // Especifica que el tipo de comando es un procedimiento almacenado.
-                command.CommandType = CommandType.StoredProcedure;
-
-                // Añade los parámetros esperados por el procedimiento almacenado.
                 command.Parameters.AddWithValue("@TecnicoID", tecnicoId);
 
-                // Añade un parámetro para recibir el valor de retorno del procedimiento almacenado.
                 var returnParameter = command.Parameters.Add("@ReturnVal", SqlDbType.Int);
                 returnParameter.Direction = ParameterDirection.ReturnValue;
 
-                command.ExecuteNonQuery();
+                await command.ExecuteNonQueryAsync();
 
                 int result = (int)returnParameter.Value;
-                if (result == 0)
-                {
-                    // Manejar el caso en el que no se elimine ningún registro, podría ser que el TecnicoID no exista.
-                    Console.WriteLine("No se encontró el técnico para eliminar.");
-                }
-                else
-                {
-                    Console.WriteLine("Técnico eliminado con éxito.");
-                }
-            }
-            catch (SqlException ex)
-            {
-                // Maneja la excepción de SQL aquí.
-                Console.WriteLine($"Ocurrió un error de SQL: {ex.Message}");
+                // Manejar el resultado como sea necesario
             }
             catch (Exception ex)
             {
-                // Maneja cualquier otro tipo de excepción aquí.
-                Console.WriteLine($"Ocurrió un error inesperado: {ex.Message}");
+                HandleException(ex);
             }
         }
     }

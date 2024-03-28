@@ -7,15 +7,9 @@ using System.Threading.Tasks;
 
 namespace FugasDetectionSystem.Infrastructure.Data
 {
-    public class DatabaseSettings : IDatabaseSettings
+    public class DatabaseSettings(string connectionString) : IDatabaseSettings
     {
         //Cadena de conexión
-        public string ConnectionString { get; } = string.Empty;
-
-
-        public DatabaseSettings(string connectionString)
-        {
-            ConnectionString = connectionString;
-        }   
+        public string ConnectionString { get; } = connectionString;
     }
 }

@@ -1,11 +1,8 @@
 using FugasDetectionSystem.Domain.Interfaces;
 using FugasDetectionSystem.Infrastructure.Services.Telegram;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Configuration;
-using System;
 using FugasDetectionSystem.Infrastructure.Data;
 using FugasDetectionSystem.Domain.Repositories;
+using FugasDetectionSystem.Infrastructure.Services.Telegram.Interfaces;
 
 namespace FugasDetectionSystem.BotWorker
 {
@@ -34,7 +31,7 @@ namespace FugasDetectionSystem.BotWorker
             });
 
             // Registro de la cadena de conexión y repositorios
-            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+            var connectionString = builder.Configuration.GetConnectionString("dbOkFugasConnection");
 
             if (connectionString == null)
             {
