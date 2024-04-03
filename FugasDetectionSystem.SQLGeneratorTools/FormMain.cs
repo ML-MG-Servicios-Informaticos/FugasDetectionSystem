@@ -1,19 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using System.Data;
-using System.Data.SqlClient;
+﻿using System.Data;
 using System.Text.Json;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
-using FugasDetectionSystem.SQLGeneratorTools;
-
-
 
 
 namespace FugasDetectionSystem.SQLGeneratorTools
@@ -22,6 +8,7 @@ namespace FugasDetectionSystem.SQLGeneratorTools
     {
         SQLExecutor sqlExecutor = new SQLExecutor();
         private static readonly string FILE_PATH = "path_to_your_file.json";
+        string selectedTableName = string.Empty;
         public FormMain()
         {
             InitializeComponent();
@@ -30,6 +17,7 @@ namespace FugasDetectionSystem.SQLGeneratorTools
         private void FormMain_Load(object sender, EventArgs e)
         {
 
+            Cursor.Current = Cursors.WaitCursor;
             if (File.Exists(FILE_PATH))
             {
                 // Si el archivo existe, carga la estructura del TreeView desde el archivo JSON
@@ -39,6 +27,7 @@ namespace FugasDetectionSystem.SQLGeneratorTools
             {
                 CreateTreeViewFromDatabaseAsync(FILE_PATH);
             }
+
         }
 
 
@@ -128,29 +117,204 @@ namespace FugasDetectionSystem.SQLGeneratorTools
                 // Maneja cualquier excepción aquí
                 MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-            finally
-            {
-                Cursor.Current = Cursors.Default; // Restablece el cursor
-                                                  // Habilita nuevamente cualquier control que haya sido deshabilitado
-            }
         }
 
         private async void treeView1_AfterSelect(object sender, TreeViewEventArgs e)
         {
             if (e.Node.Parent == null)
             {
-                // Solo proceder si el nodo seleccionado es una tabla.
                 try
                 {
-                    string selectedTableName = e.Node.Text;
+                    Cursor.Current = Cursors.WaitCursor;
+                    selectedTableName = e.Node.Text;
                     var columnDetailsList = await sqlExecutor.GetTableColumnsAsync(selectedTableName);
                     DGVColumnas.DataSource = columnDetailsList; // Asumiendo que tu DataGridView se llama dgvColumnas
+                    var crud = await sqlExecutor.CreateProceduresforTableAsync(selectedTableName);
+                    ConfigureTabControl(crud);
                 }
                 catch (Exception ex)
                 {
                     MessageBox.Show(ex.Message, "Error al cargar columnas", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
+
             }
+
+        }
+
+        private void contextMenuStrip1_MouseClick(object sender, MouseEventArgs e)
+        {
+            MessageBox.Show("Item clicked and unchequeado");
+        }
+
+        private void insertToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            cBInsert.Checked = insertToolStripMenuItem.Checked;
+            CheckedByChecked();
+        }
+
+        private void updateToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            cBUpdate.Checked = updateToolStripMenuItem.Checked;
+            CheckedByChecked();
+        }
+
+        private void deteleToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            cBDelete.Checked = deteleToolStripMenuItem.Checked;
+            CheckedByChecked();
+        }
+
+        private void selectAllToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            cBAll.Checked = selectAllToolStripMenuItem.Checked;
+            CheckedByChecked();
+        }
+
+        private void selectByIdToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            cBById.Checked = selectByIdToolStripMenuItem.Checked;
+            CheckedByChecked();
+        }
+
+        private void CheckedByChecked()
+        {
+            if (cBInsert.Checked && cBUpdate.Checked && cBDelete.Checked && cBAll.Checked && cBById.Checked)
+            {
+                cBALLSp.Checked = true;
+                todos5ToolStripMenuItem.Checked = true;
+            }
+            else
+            {
+                cBALLSp.Checked = false;
+                todos5ToolStripMenuItem.Checked = false;
+            }
+            //ConfigureTabControl();
+        }
+
+        private void CheckedAndUnCheckedAll(bool ck)
+        {
+            cBALLSp.Checked = ck;
+            todos5ToolStripMenuItem.Checked = ck;
+            insertToolStripMenuItem.Checked = ck;
+            updateToolStripMenuItem.Checked = ck;
+            deteleToolStripMenuItem.Checked = ck;
+            selectAllToolStripMenuItem.Checked = ck;
+            selectByIdToolStripMenuItem.Checked = ck;
+            cBInsert.Checked = ck;
+            cBUpdate.Checked = ck;
+            cBDelete.Checked = ck;
+            cBAll.Checked = ck;
+            cBById.Checked = ck;
+        }
+        // Asegúrate de ejecutar este código después de InitializeComponent() o en algún evento después de que el formulario se haya cargado.
+
+        private void ConfigureTabControl(CRUDOperationResult OpResult)
+        {
+            // Primero, puedes limpiar las pestañas existentes si es necesario
+            tabControl1.TabPages.Clear();
+            gBoxTableName.Text = selectedTableName;
+
+            if (cBInsert.Checked)
+            {
+                TabPage newTabPage = new TabPage("Insert");
+                RichTextBox richTextBox = new RichTextBox();
+                richTextBox.Dock = DockStyle.Fill;
+                richTextBox.Text = OpResult.QuerysString["Insert"].ToString();
+                newTabPage.Controls.Add(richTextBox);
+                tabControl1.TabPages.Add(newTabPage);
+            }
+
+
+            if (cBUpdate.Checked)
+            {
+                TabPage newTabPage = new TabPage("Update");
+                RichTextBox richTextBox = new RichTextBox();
+                richTextBox.Dock = DockStyle.Fill;
+                richTextBox.Text = OpResult.QuerysString["Update"].ToString();
+                newTabPage.Controls.Add(richTextBox);
+                tabControl1.TabPages.Add(newTabPage);
+            }
+
+            if (cBDelete.Checked)
+            {
+                TabPage newTabPage = new TabPage("Delete");
+                RichTextBox richTextBox = new RichTextBox();
+                richTextBox.Dock = DockStyle.Fill;
+                richTextBox.Text = OpResult.QuerysString["Delete"].ToString();
+                newTabPage.Controls.Add(richTextBox);
+                tabControl1.TabPages.Add(newTabPage);
+            }
+
+            if (cBAll.Checked)
+            {
+                TabPage newTabPage = new TabPage("Select All");
+                RichTextBox richTextBox = new RichTextBox();
+                richTextBox.Dock = DockStyle.Fill;
+                richTextBox.Text = OpResult.QuerysString["SelectAll"].ToString();
+                newTabPage.Controls.Add(richTextBox);
+                tabControl1.TabPages.Add(newTabPage);
+            }
+
+            if (cBById.Checked)
+            {
+                TabPage newTabPage = new TabPage("Select By Id");
+                RichTextBox richTextBox = new RichTextBox();
+                richTextBox.Dock = DockStyle.Fill;
+                richTextBox.Text = OpResult.QuerysString["SelectById"].ToString();
+                newTabPage.Controls.Add(richTextBox);
+                tabControl1.TabPages.Add(newTabPage);
+            }
+            Cursor.Current = Cursors.Default;
+        }
+
+        private void todos5ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            CheckedAndUnCheckedAll(todos5ToolStripMenuItem.Checked);
+        }
+
+        private void cBInsert_Click(object sender, EventArgs e)
+        {
+            insertToolStripMenuItem.Checked = cBInsert.Checked;
+            CheckedByChecked();
+        }
+
+        private void cBALLSp_Click(object sender, EventArgs e)
+        {
+            CheckedAndUnCheckedAll(cBALLSp.Checked);
+            CheckedByChecked();
+        }
+
+        private void cBUpdate_Click(object sender, EventArgs e)
+        {
+            updateToolStripMenuItem.Checked = cBUpdate.Checked;
+            CheckedByChecked();
+        }
+
+        private void cBDelete_Click(object sender, EventArgs e)
+        {
+            deteleToolStripMenuItem.Checked = cBDelete.Checked;
+            CheckedByChecked();
+        }
+
+        private void cBAll_Click(object sender, EventArgs e)
+        {
+            selectAllToolStripMenuItem.Checked = cBAll.Checked;
+            CheckedByChecked();
+        }
+
+        private void cBById_Click(object sender, EventArgs e)
+        {
+            selectByIdToolStripMenuItem.Checked = cBById.Checked;
+            CheckedByChecked();
+        }
+
+        private void playToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            foreach (TabPage tabPage in tabControl1.TabPages)
+            {
+                sqlExecutor.ExecuteScriptWithGO(tabPage.Controls[0].Text);
+            }
+            
         }
     }
 }
